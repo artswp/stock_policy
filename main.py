@@ -31,8 +31,8 @@ nmc:流通市值
 2.今收>昨max
 
 """
-start_today='2020-06-08'
-end_last='2020-05-08'
+start_today='2020-05-11'
+end_last='2020-06-11'
 for index in today_all.index:
 	#filter some not happen
 	#     if today_all['changepercent'][index] < 2.0 or today_all['settlement'][index] ==0 or today_all['changepercent'][index] > 8.0:
@@ -45,11 +45,20 @@ for index in today_all.index:
 	trade      = today_all['trade'][index]
 	code       = today_all['code'][index]
 	name       = today_all['name'][index]
-	if code[0]=='3' or name[0]=='*':
+	if code is None or name is None or len(name)<=0:
+		continue
+	if code[0]=='3' or name[0]=='*' or name[0]=='S':
 		continue #过滤掉创业板和带*的
+	#价格小于30.00	
+	if trade > 30.0:
+		continue
 	
-	#下载最近20天的股价
-	hist=ts.get_hist_data(code,start=start_today,end=end_last)
+	try:
+		#下载最近20天的股价
+		hist=ts.get_hist_data(code,start=start_today,end=end_last)
+	except :
+		continue
+
 	
 	'''
 	date：日期
@@ -70,7 +79,7 @@ for index in today_all.index:
 	'''
 	#判断是否水上漂
 	#判断第一天涨幅是否大于8%则舍弃
-	if hist==None or hist.empty :
+	if hist is None or hist.empty :
 		continue
 	if hist['p_change'][0] < 8.0:
 		 #循环判断前5个的收盘价是否都大于5日线，连续4日则列出来 
@@ -78,9 +87,14 @@ for index in today_all.index:
 			and hist['close'][1]>hist['ma5'][1] \
 			and hist['close'][2]>hist['ma5'][3] \
 			and hist['close'][3]>hist['ma5'][3]:
-			print(today_all['code'][index],",",today_all['name'][index],"连续4日5均线上")
-			continue
-
+			if hist['high'][0]>hist['high'][1]>hist['high'][2]>hist['high'][3]: #最高价越高
+				print(today_all['code'][index],",",today_all['name'][index],"连续4日5均线上,节节高*****")
+				continue
+	if hist['p_change'][1]< -2.0 and hist['p_change'][0] > 0: #昨日必须是跌-2%一下,今日必须是涨,#低开高走，
+		if hist['open'][0] < hist['close'][1] and hist['close'][0] > hist['close'][1]	\
+			and ((hist['close'][0] - hist['open'][0])/hist['close'][0] *100) >5.0:
+				print(today_all['code'][index],",",today_all['name'][index],"阳吞阴*****")
+				continue	
 
 
 
