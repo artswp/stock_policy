@@ -31,8 +31,8 @@ nmc:流通市值
 2.今收>昨max
 
 """
-start_today='2020-05-15'
-end_last='2020-06-15'
+start_today='2020-05-16'
+end_last='2020-06-16'
 for index in today_all.index:
 	#filter some not happen
 	#     if today_all['changepercent'][index] < 2.0 or today_all['settlement'][index] ==0 or today_all['changepercent'][index] > 8.0:
@@ -88,7 +88,7 @@ for index in today_all.index:
 			and hist['close'][2]>hist['ma5'][2] \
 			and hist['high'][0]>hist['high'][1]>hist['high'][2]\
 			and hist['low'][0]>hist['low'][1]>hist['low'][2]:
-			print(today_all['code'][index],",",today_all['name'][index],"连续4日5均线上,节节高*****")
+			print(today_all['code'][index],",",today_all['name'][index],"三阳开泰,节节高*****")
 			continue
 	if hist['p_change'][1]< -2.0 and hist['p_change'][0] > 0: #昨日必须是跌-2%一下,今日必须是涨,#低开高走，
 		if hist['open'][0] < hist['close'][1] and hist['close'][0] > hist['close'][1]	\
@@ -100,7 +100,7 @@ for index in today_all.index:
 
 	#jump space
 	open_percent= (open - settlement)/settlement *100
-	if open > settlement and trade > settlement and open_percent > 2.0:
+	if open > settlement and trade > settlement and open_percent > 2.0 and hsit[p_change][1] <8.0:
 		print(today_all['code'][index],",",today_all['name'][index],"跳空选股")
 		continue
 
