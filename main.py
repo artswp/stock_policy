@@ -31,8 +31,8 @@ nmc:流通市值
 2.今收>昨max
 
 """
-start_today='2020-05-16'
-end_last='2020-06-16'
+start_today='2020-05-18'
+end_last='2020-06-19'
 for index in today_all.index:
 	#filter some not happen
 	#     if today_all['changepercent'][index] < 2.0 or today_all['settlement'][index] ==0 or today_all['changepercent'][index] > 8.0:
@@ -45,6 +45,7 @@ for index in today_all.index:
 	trade      = today_all['trade'][index]
 	code       = today_all['code'][index]
 	name       = today_all['name'][index]
+	# print("code:",code)
 	if code is None or name is None or len(name)<=0:
 		continue
 	if code[0]=='3' or name[0]=='*' or name[0]=='S':
@@ -59,7 +60,8 @@ for index in today_all.index:
 	except :
 		continue
 
-	
+	# if code=='605166':
+	# 	print("here!")
 	'''
 	date：日期
 	open：开盘价
@@ -79,10 +81,10 @@ for index in today_all.index:
 	'''
 	#判断是否水上漂
 	#判断第一天涨幅是否大于8%则舍弃
-	if hist is None or hist.empty :
+	if hist is None or hist.empty or len(hist)<10:
 		continue
 	if hist['p_change'][0] < 8.0:
-		 #循环判断前5个的收盘价是否都大于5日线，连续4日则列出来 
+		 #循环判断前3个的收盘价是否都大于5日线，连续4日则列出来 
 		if hist['close'][0]>hist['ma5'][0] \
 			and hist['close'][1]>hist['ma5'][1] \
 			and hist['close'][2]>hist['ma5'][2] \
@@ -90,6 +92,17 @@ for index in today_all.index:
 			and hist['low'][0]>hist['low'][1]>hist['low'][2]:
 			print(today_all['code'][index],",",today_all['name'][index],"三阳开泰,节节高*****")
 			continue
+	#连续6日在5日线上
+	if hist['p_change'][0] < 8.0:
+		if hist['close'][0]>hist['ma5'][0] \
+			and hist['close'][1]>hist['ma5'][1] \
+			and hist['close'][2]>hist['ma5'][2] \
+			and hist['close'][3]>hist['ma5'][3] \
+			and hist['close'][4]>hist['ma5'][4] \
+			and hist['close'][5]>hist['ma5'][5] :
+			print(today_all['code'][index],",",today_all['name'][index],"连续6日上五线*****")
+
+
 	if hist['p_change'][1]< -2.0 and hist['p_change'][0] > 0: #昨日必须是跌-2%一下,今日必须是涨,#低开高走，
 		if hist['open'][0] < hist['close'][1] and hist['close'][0] > hist['close'][1]	\
 			and ((hist['close'][0] - hist['open'][0])/hist['close'][0] *100) >5.0:
@@ -100,24 +113,13 @@ for index in today_all.index:
 
 	#jump space
 	open_percent= (open - settlement)/settlement *100
-	if open > settlement and trade > settlement and open_percent > 2.0 and hsit[p_change][1] <8.0:
+	if open > settlement and trade > settlement and open_percent > 2.0 and hist['p_change'][1] <8.0:
 		print(today_all['code'][index],",",today_all['name'][index],"跳空选股")
 		continue
 
 
 	#goog line
 
-	anti = today_all['high'][index] - today_all['trade'][index]
-	body = today_all['trade'][index] - today_all['open'][index]
-	if body==0:
-		body=1
-	# print("today_all['changepercent'][index]:",today_all['changepercent'][index])
-	# print("today_all['changepercent'][low]:",today_all['low'][index])
-	if today_all['changepercent'][index] > 5.0 and today_all['changepercent'][index] < 9.0 and today_all['open'][index] - today_all['low'][index] == 0 and anti/body >1/3:
-		print(today_all['code'][index],",",today_all['name'][index],"捉腰选股")
-		continue
-	# if dropline:
-	#     today_all.drop([index],inplace=True)
 # print(today_all)
 
 
@@ -168,6 +170,18 @@ for index in today_all.index:
 '''
 
 '''
-1.三阳开泰
+前提概要：60日线上操作
+1.股价在60日线下，弱反弹以20线反复缠绕构建2上2下中枢，突破60线也是突破中枢，向上时，就是时机，只突破一个压力的前途不大
+2.股价在60日线下，一笔反弹突破60线，在60线上以20线构建2上2下中枢，一般突破中枢，有1~2日次级别确认，或回踩20线，这就非常好
+3.前期围绕20线缠绕2上2下，最后一笔温和放量离开后回踩(最好是只触及)20线，
+20线附近放量大阳线收涨(V型底分型)，分型最好就3根，快跌快涨，一般涨后有几天确认—小趋势
+
+4.线段式走势
+4.1 股价上5日后不跌破5日线、
+4.2 5日上假阴线，第二日高开为佳，低开保险，	 调整：以跳空十字假阴线
+4.3 回踩10日买点，大阳、放量、不修整		调整：以长方形平台、斜方形平台，具有对齐性	
+4.4 回踩20日买点，大阳、放量、可能修整		 调整：以上缓下急速的形状
+4.5 更多请看周线
+
 2.
 '''
